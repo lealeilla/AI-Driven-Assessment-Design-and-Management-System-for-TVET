@@ -1,0 +1,18 @@
+{
+  "an ide": "is a software application that provides comprehensive facilities for",
+  "a python virtual environment": "is a tool that helps you create an isolated",
+  "a function in python": "is a block of reusable code that performs a specific task. It is",
+  "what": "is a Lambda Function?",
+  "function. the following": "is the syntax of a filter function:",
+  "a series": "is a data frame column. You can manipulate all of the values in a series by",
+  "python": "is an object-oriented programming language.",
+  "almost everything in python": "is an object, with its properties and methods.",
+  "inheritance in python": "is a fundamental concept of object-oriented programming",
+  "polymorphism in python": "is a powerful feature that allows different classes to be",
+  "encapsulation in python": "is a fundamental object-oriented programming principle",
+  "dateutil": "is a powerful extension of the datetime module that provides additional",
+  "arrow": "is a lightweight library that simplifies working with dates and times in",
+  "pendulum": "is a robust datetime library that extends datetime with advanced",
+  "a python library": "is a collection of modules that provide reusable code to perform",
+  "the python standard library": "is a collection of modules and packages that come with"
+}
