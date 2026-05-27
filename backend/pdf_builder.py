@@ -7,7 +7,8 @@ from reportlab.platypus import (
     Table, TableStyle, HRFlowable
 )
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
-import pandas as pd, ast, re
+import pandas as pd, ast
+import re
 
 
 def build_exam_pdf(exam_csv, output_path, school_name, program, module,
@@ -111,32 +112,56 @@ def build_exam_pdf(exam_csv, output_path, school_name, program, module,
                 story.append(Paragraph("Answer: _______",
                     S('op2', fontSize=10, fontName='Helvetica',
                       leftIndent=20, spaceAfter=6)))
-
+                
             elif qtype == 'matching':
                 try:
                     pairs = ast.literal_eval(str(row['options']))
                 except:
                     pairs = []
                 if pairs:
+                    from reportlab.platypus import KeepTogether
+
+                    # Build full matching table — kept together on same page
                     td = [["Column A (Terms)", "Column B (Descriptions)"]]
                     for j, p in enumerate(pairs):
                         term = p.get('term', '') if isinstance(p, dict) else str(p)
                         desc = p.get('description', '') if isinstance(p, dict) else ''
-                        td.append([f"{j+1}. {term}", f"{'ABCD'[j]}. {desc[:80]}"])
-                    mt = Table(td, colWidths=[8*cm, 8.5*cm])
+
+                        # Clean and trim description properly
+                        desc = str(desc).strip()
+                        if len(desc) > 150:
+                            desc = desc[:147] + "..."
+
+                        td.append([
+                            Paragraph(f"{j+1}. {term}",
+                                S('mt', fontSize=9, fontName='Helvetica', leading=13)),
+                            Paragraph(f"{'ABCD'[j]}. {desc}",
+                                S('md', fontSize=9, fontName='Helvetica', leading=13)),
+                        ])
+
+                    mt = Table(td, colWidths=[8*cm, 9*cm])
                     mt.setStyle(TableStyle([
-                        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#EEEEEE')),
-                        ('FONTNAME',   (0,0), (-1,0), 'Helvetica-Bold'),
+                        ('BACKGROUND', (0,0), (-1,0),  colors.HexColor('#EEEEEE')),
+                        ('FONTNAME',   (0,0), (-1,0),  'Helvetica-Bold'),
                         ('FONTSIZE',   (0,0), (-1,-1), 9),
                         ('BOX',        (0,0), (-1,-1), 0.5, colors.grey),
                         ('INNERGRID',  (0,0), (-1,-1), 0.3, colors.grey),
-                        ('PADDING',    (0,0), (-1,-1), 5),
+                        ('PADDING',    (0,0), (-1,-1), 6),
+                        ('VALIGN',     (0,0), (-1,-1), 'TOP'),
+                        ('ROWBACKGROUNDS', (0,1), (-1,-1),
+                        [colors.white, colors.HexColor('#FAFAFA')]),
                     ]))
-                    story += [Spacer(1, 4), mt]
+
+                    # KeepTogether prevents the table splitting across pages
+                    story += [
+                        Spacer(1, 4),
+                        KeepTogether([mt]),
+                    ]
+
                 story.append(Paragraph(
-                    "Answers: 1.___ 2.___ 3.___ 4.___",
+                    "Answers: 1.___  2.___  3.___  4.___",
                     S('ma', fontSize=10, fontName='Helvetica',
-                      leftIndent=20, spaceAfter=6)
+                    leftIndent=20, spaceAfter=6)
                 ))
 
             elif qtype == 'open':

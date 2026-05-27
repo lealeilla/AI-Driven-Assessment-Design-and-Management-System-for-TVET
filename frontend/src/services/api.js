@@ -106,3 +106,28 @@ export async function getQuestionBank(filters = {}) {
   const params = new URLSearchParams(filters).toString();
   return request(`/question-bank${params ? "?" + params : ""}`);
 }
+
+export async function deleteExam(examId) {
+  return request(`/exams/${examId}`, { method: "DELETE" });
+}
+
+export async function updateExam(examId, data) {
+  return request(`/exams/${examId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getDashboardStats() {
+  return request("/dashboard/stats");
+}
+export async function updateQuestion(questionId, data) {
+  return request(`/questions/${questionId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteQuestion(questionId) {
+  return request(`/questions/${questionId}`, { method: "DELETE" });
+}

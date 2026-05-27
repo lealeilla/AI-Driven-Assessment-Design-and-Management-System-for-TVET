@@ -78,3 +78,29 @@ class ModuleInfo(BaseModel):
     level   : int
     module  : str
     outcomes: List[str]
+
+# ── NEW SCHEMAS FOR EDIT/DELETE ────────────────────────────────────────
+class ExamUpdateRequest(BaseModel):
+    exam_date: Optional[str] = None
+    time_allowed: Optional[str] = None
+    total_marks: Optional[int] = None
+    learning_outcome: Optional[str] = None
+
+class QuestionUpdateRequest(BaseModel):
+    question: Optional[str] = None
+    question_type: Optional[str] = None
+    options: Optional[List[str]] = None
+    correct_answer: Optional[str] = None
+    marks: Optional[int] = None
+    bloom_level: Optional[str] = None
+    topic: Optional[str] = None
+
+class NewQuestionRequest(BaseModel):
+    learning_outcome: str
+    bloom_level: str
+    question_type: str
+    question: str
+    options: List[str] = []
+    correct_answer: str
+    marks: int
+    topic: str

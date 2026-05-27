@@ -3,6 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 import os
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:lea123@localhost:5432/tvet_db")
 
@@ -33,6 +36,7 @@ class Exam(Base):
     assessment_type = Column(String(20))   # Formative / Summative
     num_questions   = Column(Integer)
     total_marks     = Column(Integer)
+    school_name     = Column(String(200))
     exam_date       = Column(String(50))
     time_allowed    = Column(String(50))
     created_at      = Column(DateTime, default=datetime.utcnow)

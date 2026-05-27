@@ -1,8 +1,15 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SectionCard from "../components/SectionCard";
 import StatCard from "../components/StatCard";
-import { quickStats } from "../data/mockData";
+import { getDashboardStats } from "../services/api";
 
 function DashboardPage({ user }) {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const workflowItems = [
     "Select level, program, and module to generate an exam draft.",
     "Review the generated paper and confirm the writing-space layout.",
@@ -16,6 +23,46 @@ function DashboardPage({ user }) {
     "AI assists marking at 70%, while teachers validate and finalize the remaining 30%."
   ];
 
+  // ── Fetch real dashboard data ────────────────────────────────────────
+  useEffect(() => {
+    getDashboardStats()
+      .then((data) => {
+        setStats(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || "Could not load dashboard statistics");
+        setLoading(false);
+      });
+  }, []);
+
+  // ── Loading state ─────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-700"></div>
+          <p className="mt-3 text-sm text-slate-500">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error state ──────────────────────────────────────────────────────
+  if (error) {
+    return (
+      <div className="rounded-2xl bg-red-50 border border-red-200 p-6 text-center">
+        <p className="text-red-700">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-3 rounded-xl bg-red-100 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-200"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <section className="rounded-[28px] border border-sky-200/80 bg-gradient-to-r from-blue-950 via-blue-800 to-emerald-700 p-5 text-white shadow-soft">
@@ -23,7 +70,7 @@ function DashboardPage({ user }) {
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-[0.25em] text-sky-100">Welcome Back</p>
             <h1 className="mt-2 text-xl font-semibold md:text-2xl">
-              {user.role} workspace for AI-supported TVET assessment management
+              {user?.role || "Teacher"} workspace for AI-supported TVET assessment management
             </h1>
             <p className="mt-2 text-sm text-sky-50/95">
               The main purpose of this system is to help teachers generate paper-based exams, manage scanned scripts, validate AI marking, and analyze competency-based results in one professional workspace.
@@ -31,10 +78,16 @@ function DashboardPage({ user }) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <button className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-blue-900 transition hover:bg-sky-50">
+            <button
+              onClick={() => navigate("/generate-assessment")}
+              className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-blue-900 transition hover:bg-sky-50"
+            >
               Generate New Exam
             </button>
-            <button className="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-300">
+            <button
+              onClick={() => navigate("/mark-scripts")}
+              className="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-300"
+            >
               Review Marking
             </button>
           </div>
@@ -42,9 +95,30 @@ function DashboardPage({ user }) {
       </section>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {quickStats.map((card) => (
-          <StatCard key={card.title} {...card} />
-        ))}
+        <StatCard
+          title="Total Exams"
+          value={stats?.total_exams || 0}
+          icon="📄"
+          description="Exams generated"
+        />
+        <StatCard
+          title="Total Questions"
+          value={stats?.total_questions || 0}
+          icon="❓"
+          description="Questions created"
+        />
+        <StatCard
+          title="Modules"
+          value={stats?.total_modules || 0}
+          icon="📚"
+          description="Active modules"
+        />
+        <StatCard
+          title="Recent Exams"
+          value={stats?.recent_exams?.length || 0}
+          icon="🕐"
+          description="Last 5 exams"
+        />
       </div>
 
       <SectionCard
